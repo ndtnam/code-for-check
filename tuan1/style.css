@@ -1,0 +1,23 @@
+.container {
+    background-color: #3e2723;
+    padding: 10px;
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-gap: 20px 50px;
+}
+
+
+.item {
+    background-color: #80cbc4;
+    border: 1px solid #fff;
+    padding: 20px;
+    font-size: 30px;
+    text-align: center;
+ 
+}
+.item2 {
+    grid-row-start:1 ;
+    grid-row-end: 4;
+
+}
