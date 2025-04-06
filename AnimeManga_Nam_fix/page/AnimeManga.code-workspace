@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../AnimeManga"
+		},
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "AnimeManga"
+	}
+}
