@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ Anime</title>
+    <link rel="stylesheet" href="../css/home.css">
+   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet"> 
+    <style>
+        #titleWeb {
+            font-size: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            color: #ffffff;
+            margin-right: 20px;
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            max-width: 500px;
+            margin: 0 20px;
+        }
+        
+        #searchInput {
+            padding: 8px 12px;
+            border: 2px solid #ffffff;
+            border-radius: 20px 0 0 20px;
+            font-size: 14px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+
+        #searchInput::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        #searchButton {
+            padding: 8px 15px;
+            background-color: #ffffff;
+            border: 2px solid #ffffff;
+            border-radius: 0 20px 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #searchButton:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        #searchButton i {
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            padding: 15px 30px;
+            gap: 20px;
+        }
+        
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ffffff;
+        }
+        
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            min-width: 150px;
+            z-index: 1000;
+        }
+        
+        .dropdown a {
+            display: block;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dropdown a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .user-profile:hover .dropdown {
+            display: block;
+        }
+        .manga-btn {
+            background: #16213e;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .manga-btn:hover {
+            transform: scale(1.05);
+            background: #1a2950;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a id="titleWeb" href="index.html">AnimeSora</a>
+        <button id="go-to-local-api" class="manga-btn" style="margin-left: 16px;">Truyện Manga</button>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search anime...">
+            <button id="searchButton"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="user-profile">
+            <img id="header-avatar" src="../images/default-avatar.png" alt="User Avatar" class="avatar">
+            <div class="dropdown">
+                <a href="profile.html">Tài khoản của tôi</a>
+                <a href="#" id="header-logout">Đăng xuất</a>
+            </div>
+        </div>
+    </header>
+    
+    <section class="anime-section">
+        <h2>Top Anime</h2>
+        <div class="anime-list" id="top-anime"></div>
+    </section>
+    
+    <section class="anime-section">
+        <h2>Phim Phổ Biến</h2>
+        <div class="anime-list" id="popular-anime"></div>
+    </section>
+    
+    <script src="../js/script.js"></script>
+    <script src="../js/search.js"></script>
+    <script src="../js/header.js"></script>
+    <script>
+        document.getElementById('go-to-local-api').addEventListener('click', function() {
+            window.location.href = 'http://localhost:3000/nettrom'; // Đổi sang địa chỉ local server của bạn
+        });
+    </script>
+</body>
+</html>
