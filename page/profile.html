@@ -139,6 +139,16 @@
             background-color: #45a049;
         }
 
+        .btn-warning {
+            background-color: #f9a825;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-warning:hover {
+            background-color: #f57c00;
+        }
+
         .actions {
             margin-top: 30px;
             display: flex;
@@ -198,6 +208,9 @@
                     <button class="btn btn-edit" id="edit-profile-btn">
                         <i class="fas fa-edit"></i> Chỉnh sửa thông tin
                     </button>
+                    <button class="btn btn-warning" id="change-password-btn" style="background-color: #f9a825; color: white;">
+                        <i class="fas fa-key"></i> Đổi mật khẩu
+                    </button>
                     <button class="btn btn-primary" id="logout-btn">
                         <i class="fas fa-sign-out-alt"></i> Đăng xuất
                     </button>
@@ -208,5 +221,6 @@
     
     <script src="../js/script.js"></script>
     <script src="../js/profile.js"></script>
+    <!-- Modal đổi mật khẩu sẽ được thêm động bằng JS -->
 </body>
 </html>

@@ -9,26 +9,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // Lấy dữ liệu người dùng từ localStorage
-            const storedUser = localStorage.getItem('user');
-            
-            if (storedUser) {
-                const user = JSON.parse(storedUser);
-                
-                // Kiểm tra thông tin đăng nhập
-                if (user.username === username && user.password === password) {
-                    // Lưu trạng thái đăng nhập
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('currentUser', username);
-                    localStorage.setItem('userSession', 'true');
-                    localStorage.setItem('userData', JSON.stringify(user));
-                    alert('Đăng nhập thành công!');
-                    window.location.href = 'index.html'; // Chuyển hướng về trang chủ
-                } else {
-                    alert('Tên đăng nhập hoặc mật khẩu không đúng!');
-                }
+            // Lấy danh sách user từ localStorage
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                // Lưu trạng thái đăng nhập
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', username);
+                localStorage.setItem('userSession', 'true');
+                localStorage.setItem('userData', JSON.stringify(user));
+                alert('Đăng nhập thành công!');
+                window.location.href = 'index.html';
             } else {
-                alert('Tài khoản không tồn tại! Vui lòng đăng ký.');
+                alert('Tên đăng nhập hoặc mật khẩu không đúng!');
             }
         });
     }

@@ -40,36 +40,30 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            // Kiểm tra xem tài khoản đã tồn tại chưa
-            const storedUser = localStorage.getItem('user');
-            
-            if (storedUser) {
-                const user = JSON.parse(storedUser);
-                if (user.username === username) {
-                    alert('Tên đăng nhập đã tồn tại!');
-                    return;
-                }
-                if (user.email === email) {
-                    alert('Email đã được sử dụng!');
-                    return;
-                }
+            // Lấy danh sách user hiện tại
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            // Kiểm tra trùng username/email
+            if (users.some(u => u.username === username)) {
+                alert('Tên đăng nhập đã tồn tại!');
+                return;
             }
-            
+            if (users.some(u => u.email === email)) {
+                alert('Email đã được sử dụng!');
+                return;
+            }
             // Tạo object người dùng mới
             const newUser = {
                 username: username,
                 email: email,
                 password: password,
-                joinDate: new Date().toISOString()
+                joinDate: new Date().toISOString(),
+                avatar: '../anh/anh_mac_dinh.jpg'
             };
-            
-            // Lưu vào localStorage
-            localStorage.setItem('user', JSON.stringify(newUser));
-            localStorage.setItem('isLoggedIn', 'true');
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
             localStorage.setItem('currentUser', username);
             localStorage.setItem('userSession', 'true');
             localStorage.setItem('userData', JSON.stringify(newUser));
-            
             alert('Đăng ký thành công!');
             window.location.href = 'index.html';
         });

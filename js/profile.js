@@ -16,21 +16,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const joinDate = document.getElementById('joinDate');
     const logoutBtn = document.getElementById('logout-btn');
     const editProfileBtn = document.getElementById('edit-profile-btn');
+    const changePasswordBtn = document.getElementById('change-password-btn');
 
     // Load user data from localStorage
     function loadUserData() {
-        const userData = JSON.parse(localStorage.getItem('userData')) || {};
-        
+        const currentUser = localStorage.getItem('currentUser');
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const userData = users.find(u => u.username === currentUser) || {};
         // Set avatar if exists
         if (userData.avatar) {
             userAvatar.src = userData.avatar;
+        } else {
+            userAvatar.src = '../images/default-avatar.png';
         }
-
         // Set user information
         displayName.textContent = userData.username || 'User Name';
         username.textContent = userData.username || 'Not set';
         email.textContent = userData.email || 'Not set';
-        joinDate.textContent = userData.joinDate || new Date().toLocaleDateString();
+        joinDate.textContent = userData.joinDate ? new Date(userData.joinDate).toLocaleDateString() : new Date().toLocaleDateString();
+        // Lưu userData hiện tại để các chức năng khác dùng
+        localStorage.setItem('userData', JSON.stringify(userData));
     }
 
     // Handle avatar upload
@@ -42,22 +47,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Please upload an image file');
                 return;
             }
-
             // Check file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 alert('File size should be less than 5MB');
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = function(event) {
                 // Update avatar preview
                 userAvatar.src = event.target.result;
-                
-                // Save to localStorage
-                const userData = JSON.parse(localStorage.getItem('userData')) || {};
-                userData.avatar = event.target.result;
-                localStorage.setItem('userData', JSON.stringify(userData));
+                // Lưu avatar vào user hiện tại trong mảng users
+                const currentUser = localStorage.getItem('currentUser');
+                let users = JSON.parse(localStorage.getItem('users')) || [];
+                const idx = users.findIndex(u => u.username === currentUser);
+                if (idx !== -1) {
+                    users[idx].avatar = event.target.result;
+                    localStorage.setItem('users', JSON.stringify(users));
+                    localStorage.setItem('userData', JSON.stringify(users[idx]));
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -73,47 +80,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 left: 50%;
                 transform: translate(-50%, -50%);
                 background: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                padding: 30px 36px;
+                border-radius: 12px;
+                box-shadow: 0 2px 18px rgba(0,0,0,0.13);
                 z-index: 1000;
+                min-width: 480px;
+                font-size: 1.5em;
             ">
-                <h3 style="margin-bottom: 15px; color: #ff4444;">Edit Profile</h3>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">Username:</label>
+                <h3 style="margin-bottom: 22px; color: #ff4444; font-size: 1.3em;">Edit Profile</h3>
+                <div style="margin-bottom: 22px;">
+                    <label style="display: block; margin-bottom: 8px;">Username:</label>
                     <input type="text" id="editUsername" value="${username.textContent}" style="
                         width: 100%;
-                        padding: 8px;
-                        border: 1px solid #ddd;
-                        border-radius: 4px;
-                        margin-bottom: 10px;
+                        padding: 12px;
+                        border: 1.5px solid #ddd;
+                        border-radius: 6px;
+                        margin-bottom: 15px;
+                        font-size: 1em;
                     ">
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px;">Email:</label>
+                <div style="margin-bottom: 22px;">
+                    <label style="display: block; margin-bottom: 8px;">Email:</label>
                     <input type="email" id="editEmail" value="${email.textContent}" style="
                         width: 100%;
-                        padding: 8px;
-                        border: 1px solid #ddd;
-                        border-radius: 4px;
-                        margin-bottom: 10px;
+                        padding: 12px;
+                        border: 1.5px solid #ddd;
+                        border-radius: 6px;
+                        margin-bottom: 15px;
+                        font-size: 1em;
                     ">
                 </div>
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <div style="display: flex; justify-content: flex-end; gap: 15px;">
                     <button id="cancelEdit" style="
-                        padding: 8px 15px;
+                        padding: 12px 22px;
                         border: none;
-                        border-radius: 4px;
+                        border-radius: 6px;
                         cursor: pointer;
                         background: #ddd;
+                        font-size: 1em;
                     ">Cancel</button>
                     <button id="saveEdit" style="
-                        padding: 8px 15px;
+                        padding: 12px 22px;
                         border: none;
-                        border-radius: 4px;
+                        border-radius: 6px;
                         cursor: pointer;
                         background: #ff4444;
                         color: white;
+                        font-size: 1em;
                     ">Save Changes</button>
                 </div>
             </div>
@@ -152,31 +165,114 @@ document.addEventListener('DOMContentLoaded', function() {
         saveBtn.addEventListener('click', function() {
             const newUsername = usernameInput.value.trim();
             const newEmail = emailInput.value.trim();
-
             // Validate email
             if (!newEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
                 alert('Please enter a valid email address');
                 return;
             }
-
             // Validate username
             if (!newUsername) {
                 alert('Username cannot be empty');
                 return;
             }
-
-            // Save changes
-            const userData = JSON.parse(localStorage.getItem('userData')) || {};
-            userData.username = newUsername;
-            userData.email = newEmail;
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
+            // Lưu thay đổi vào user hiện tại trong mảng users
+            const currentUser = localStorage.getItem('currentUser');
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const idx = users.findIndex(u => u.username === currentUser);
+            if (idx !== -1) {
+                users[idx].username = newUsername;
+                users[idx].email = newEmail;
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('userData', JSON.stringify(users[idx]));
+                localStorage.setItem('currentUser', newUsername);
+            }
             // Update display
             displayName.textContent = newUsername;
             username.textContent = newUsername;
             email.textContent = newEmail;
-
             // Close modal
+            closeModal();
+        });
+    });
+
+    // Handle change password
+    changePasswordBtn.addEventListener('click', function() {
+        const modalHTML = `
+            <div id="changePasswordModal" style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 30px 36px;
+                border-radius: 12px;
+                box-shadow: 0 2px 18px rgba(0,0,0,0.13);
+                z-index: 1000;
+                min-width: 480px;
+                font-size: 1.5em;
+            ">
+                <h3 style="margin-bottom: 22px; color: #f9a825; font-size: 1.3em;">Đổi mật khẩu</h3>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px;">Mật khẩu cũ:</label>
+                    <input type="password" id="oldPassword" style="width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 1em;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px;">Mật khẩu mới:</label>
+                    <input type="password" id="newPassword" style="width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 1em;">
+                </div>
+                <div style="margin-bottom: 22px;">
+                    <label style="display: block; margin-bottom: 8px;">Xác nhận mật khẩu mới:</label>
+                    <input type="password" id="confirmPassword" style="width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 1em;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 15px;">
+                    <button id="cancelChangePassword" style="padding: 12px 22px; border: none; border-radius: 6px; cursor: pointer; background: #ddd; font-size: 1em;">Hủy</button>
+                    <button id="saveChangePassword" style="padding: 12px 22px; border: none; border-radius: 6px; cursor: pointer; background: #f9a825; color: white; font-size: 1em;">Đổi mật khẩu</button>
+                </div>
+            </div>
+            <div id="modalOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999;"></div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = document.getElementById('changePasswordModal');
+        const overlay = document.getElementById('modalOverlay');
+        const cancelBtn = document.getElementById('cancelChangePassword');
+        const saveBtn = document.getElementById('saveChangePassword');
+        function closeModal() {
+            modal.remove();
+            overlay.remove();
+        }
+        cancelBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+        saveBtn.addEventListener('click', function() {
+            const oldPass = document.getElementById('oldPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            const currentUser = localStorage.getItem('currentUser');
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const idx = users.findIndex(u => u.username === currentUser);
+            if (idx === -1) {
+                alert('Không tìm thấy tài khoản.');
+                return;
+            }
+            if (users[idx].password !== oldPass) {
+                alert('Mật khẩu cũ không đúng!');
+                return;
+            }
+            if (newPass.length < 6) {
+                alert('Mật khẩu mới phải có ít nhất 6 ký tự.');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                alert('Xác nhận mật khẩu không khớp!');
+                return;
+            }
+            if (newPass === oldPass) {
+                alert('Mật khẩu mới phải khác mật khẩu cũ!');
+                return;
+            }
+            users[idx].password = newPass;
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('userData', JSON.stringify(users[idx]));
+            alert('Đổi mật khẩu thành công!');
             closeModal();
         });
     });

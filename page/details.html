@@ -96,6 +96,11 @@
         <h1>Chi Tiết Anime</h1>
     </header>
     <div class="anime-detail" id="anime-detail"></div>
+    <div class="character-list" id="character-list"></div>
+    <div class="episode-list" id="episode-list"></div>
+    <div class="staff-list" id="staff-list"></div>
+    <div class="pictures-list" id="pictures-list"></div>
+    <div class="recommend-list" id="recommend-list"></div>
     <a href="index.html" class="floating-back">Quay lại</a>
     <script>
         async function loadAnimeDetail() {
@@ -116,7 +121,6 @@
                 const trailer = anime.trailer && anime.trailer.youtube_id ? 
                     `<div class='trailer'><h3>Trailer</h3><iframe src='https://www.youtube.com/embed/${anime.trailer.youtube_id}' frameborder='0' allowfullscreen></iframe></div>` 
                     : "<p>Hiện chưa có trailer cho anime này.</p>";
-                
                 document.getElementById("anime-detail").innerHTML = `
                     <img src="${anime.images.jpg.image_url}" alt="${anime.title}">
                     <h2>${anime.title} (${anime.title_japanese})</h2>
@@ -127,9 +131,129 @@
                     <p><strong>Mô tả:</strong> ${anime.synopsis}</p>
                     ${trailer}
                 `;
+                // Lấy danh sách nhân vật
+                loadCharacterList(animeId);
+                // Lấy danh sách tập phim
+                loadEpisodeList(animeId);
+                // Lấy danh sách staff
+                loadStaffList(animeId);
+                // Lấy hình ảnh liên quan
+                loadPicturesList(animeId);
+                // Lấy danh sách đề xuất
+                loadRecommendList(animeId);
             } catch (error) {
                 console.error("Lỗi khi lấy dữ liệu:", error);
                 document.getElementById("anime-detail").innerHTML = "<p>Lỗi khi tải dữ liệu.</p>";
+            }
+        }
+        // Hàm lấy và hiển thị danh sách nhân vật
+        async function loadCharacterList(animeId) {
+            const charDiv = document.getElementById("character-list");
+            charDiv.innerHTML = '<p>Đang tải danh sách nhân vật...</p>';
+            try {
+                const res = await fetch(`https://api.jikan.moe/v4/anime/${animeId}/characters`);
+                const data = await res.json();
+                if (!data.data || !data.data.length) {
+                    charDiv.innerHTML = '<p>Không có thông tin nhân vật.</p>';
+                    return;
+                }
+                charDiv.innerHTML = `<h3>Danh sách nhân vật</h3><div style='display:flex;flex-wrap:wrap;justify-content:center;gap:20px;'>${data.data.slice(0, 10).map(char => `
+                    <div style='background:#fff3; border-radius:10px; padding:12px; width:180px; text-align:center;'>
+                        <img src='${char.character.images.jpg.image_url}' alt='${char.character.name}' style='width:90px;height:90px;object-fit:cover;border-radius:50%;background:#fff;'>
+                        <div style='margin-top:8px;font-weight:bold;color:#012a4a;'>${char.character.name}</div>
+                        <div style='font-size:0.95em;color:#e7e7e7;'>${char.role}</div>
+                    </div>
+                `).join('')}</div>`;
+            } catch (err) {
+                charDiv.innerHTML = '<p>Lỗi khi tải danh sách nhân vật.</p>';
+            }
+        }
+        // Hàm lấy và hiển thị danh sách tập phim
+        async function loadEpisodeList(animeId) {
+            const epDiv = document.getElementById("episode-list");
+            epDiv.innerHTML = '<p>Đang tải danh sách tập phim...</p>';
+            try {
+                const res = await fetch(`https://api.jikan.moe/v4/anime/${animeId}/episodes?page=1`);
+                const data = await res.json();
+                if (!data.data || !data.data.length) {
+                    epDiv.innerHTML = '<p>Không có thông tin tập phim.</p>';
+                    return;
+                }
+                epDiv.innerHTML = `<h3>Danh sách tập phim</h3><div style='display:flex;flex-wrap:wrap;justify-content:center;gap:16px;'>${data.data.slice(0, 12).map(ep => `
+                    <div style='background:#fff3; border-radius:10px; padding:10px 14px; min-width:160px; text-align:left;'>
+                        <div style='font-weight:bold;color:#1576c1;'>Tập ${ep.mal_id}: ${ep.title || ''}</div>
+                        <div style='font-size:0.95em;color:#e7e7e7;'>${ep.aired ? (new Date(ep.aired).toLocaleDateString('vi-VN')) : ''}</div>
+                        <div style='font-size:0.95em;color:#e7e7e7;'>${ep.synopsis ? ep.synopsis.substring(0, 80) + (ep.synopsis.length > 80 ? '...' : '') : ''}</div>
+                    </div>
+                `).join('')}</div>`;
+                if (data.pagination && data.pagination.has_next_page) {
+                    epDiv.innerHTML += `<div style='margin-top:10px; color:#e7e7e7; font-size:0.95em;'>Chỉ hiển thị 12 tập đầu. Xem thêm trên <a href='https://myanimelist.net/anime/${animeId}/episode' target='_blank' style='color:#fff;text-decoration:underline;'>MyAnimeList</a></div>`;
+                }
+            } catch (err) {
+                epDiv.innerHTML = '<p>Lỗi khi tải danh sách tập phim.</p>';
+            }
+        }
+        // Hàm lấy và hiển thị danh sách staff
+        async function loadStaffList(animeId) {
+            const staffDiv = document.getElementById("staff-list");
+            staffDiv.innerHTML = '<p>Đang tải danh sách staff...</p>';
+            try {
+                const res = await fetch(`https://api.jikan.moe/v4/anime/${animeId}/staff`);
+                const data = await res.json();
+                if (!data.data || !data.data.length) {
+                    staffDiv.innerHTML = '<p>Không có thông tin staff.</p>';
+                    return;
+                }
+                staffDiv.innerHTML = `<h3>Staff (Đội ngũ sản xuất)</h3><div style='display:flex;flex-wrap:wrap;justify-content:center;gap:20px;'>${data.data.slice(0, 8).map(staff => `
+                    <div style='background:#fff3; border-radius:10px; padding:12px; width:180px; text-align:center;'>
+                        <img src='${staff.person.images.jpg.image_url}' alt='${staff.person.name}' style='width:90px;height:90px;object-fit:cover;border-radius:50%;background:#fff;'>
+                        <div style='margin-top:8px;font-weight:bold;color:#012a4a;'>${staff.person.name}</div>
+                        <div style='font-size:0.95em;color:#e7e7e7;'>${staff.positions.join(', ')}</div>
+                    </div>
+                `).join('')}</div>`;
+            } catch (err) {
+                staffDiv.innerHTML = '<p>Lỗi khi tải danh sách staff.</p>';
+            }
+        }
+        // Hàm lấy và hiển thị hình ảnh liên quan
+        async function loadPicturesList(animeId) {
+            const picDiv = document.getElementById("pictures-list");
+            picDiv.innerHTML = '<p>Đang tải hình ảnh liên quan...</p>';
+            try {
+                const res = await fetch(`https://api.jikan.moe/v4/anime/${animeId}/pictures`);
+                const data = await res.json();
+                if (!data.data || !data.data.length) {
+                    picDiv.innerHTML = '<p>Không có hình ảnh liên quan.</p>';
+                    return;
+                }
+                picDiv.innerHTML = `<h3>Hình ảnh liên quan</h3><div style='display:flex;flex-wrap:wrap;justify-content:center;gap:12px;'>${data.data.slice(0, 10).map(pic => `
+                    <img src='${pic.jpg.image_url}' alt='Ảnh liên quan' style='width:140px;height:200px;object-fit:cover;border-radius:8px;background:#fff;'>
+                `).join('')}</div>`;
+            } catch (err) {
+                picDiv.innerHTML = '<p>Lỗi khi tải hình ảnh liên quan.</p>';
+            }
+        }
+        // Hàm lấy và hiển thị danh sách đề xuất
+        async function loadRecommendList(animeId) {
+            const recDiv = document.getElementById("recommend-list");
+            recDiv.innerHTML = '<p>Đang tải danh sách đề xuất...</p>';
+            try {
+                const res = await fetch(`https://api.jikan.moe/v4/anime/${animeId}/recommendations`);
+                const data = await res.json();
+                if (!data.data || !data.data.length) {
+                    recDiv.innerHTML = '<p>Không có đề xuất nào.</p>';
+                    return;
+                }
+                recDiv.innerHTML = `<h3>Đề xuất anime liên quan</h3><div style='display:flex;flex-wrap:wrap;justify-content:center;gap:16px;'>${data.data.slice(0, 8).map(rec => `
+                    <a href='details.html?id=${rec.entry.mal_id}' style='text-decoration:none;'>
+                        <div style='background:#fff3; border-radius:10px; padding:10px; width:160px; text-align:center; transition:box-shadow 0.2s;' onmouseover="this.style.boxShadow='0 0 8px #1576c1'" onmouseout="this.style.boxShadow='none'">
+                            <img src='${rec.entry.images.jpg.image_url}' alt='${rec.entry.title}' style='width:100px;height:140px;object-fit:cover;border-radius:6px;background:#fff;'>
+                            <div style='margin-top:8px;font-weight:bold;color:#012a4a;font-size:1em;'>${rec.entry.title}</div>
+                        </div>
+                    </a>
+                `).join('')}</div>`;
+            } catch (err) {
+                recDiv.innerHTML = '<p>Lỗi khi tải danh sách đề xuất.</p>';
             }
         }
         loadAnimeDetail();

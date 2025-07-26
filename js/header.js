@@ -4,11 +4,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load user data and update avatar
     function loadUserProfile() {
-        const userData = JSON.parse(localStorage.getItem('userData')) || {};
-        
+        const currentUser = localStorage.getItem('currentUser');
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const userData = users.find(u => u.username === currentUser) || {};
         // Update avatar if exists
         if (userData.avatar) {
             headerAvatar.src = userData.avatar;
+        } else {
+            headerAvatar.src = '../images/default-avatar.png';
         }
     }
 
